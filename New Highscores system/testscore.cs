@@ -10,12 +10,10 @@ public class testscore : MonoBehaviour
     {
         PlayerPrefs.SetInt("GameModeNumber", gameModeNumber); // Store game mode number in playerprefs
         PlayerPrefs.SetInt("FinalScore"+gameModeNumber, score);
-        Debug.Log(score);
 	}
 	
     public void LoadHighscoresScene()
     {
-        PlayerPrefs.SetInt("FinalScore"+gameModeNumber, score);
         try
         {
             UnityEngine.SceneManagement.SceneManager.LoadScene("5scores"); // Will change to +gameModeNumber

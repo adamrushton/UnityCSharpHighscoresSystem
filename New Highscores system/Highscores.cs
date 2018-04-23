@@ -2,14 +2,6 @@
 
 public class Highscores : UnityEngine.MonoBehaviour {
 
-    enum GameModes
-    {
-        InvalidGameMode = -1,
-        AnimalMasks = 1,
-        EmotionMasks,
-        EmotionSnap,
-        GridEmotion
-    } 
     // Grouping player data together
     struct Players
     {
@@ -20,7 +12,7 @@ public class Highscores : UnityEngine.MonoBehaviour {
     const int TOTAL_SCORES = 5;        // Total number of scores saved
     const int MINIMUM_CHARACTERS = 0;  // Lower bound for the number of characters in a username 
     const int MAXIMUM_CHARACTERS = 18; // Upper bound for the number of characters in a username
-
+    const int INVALID_GAMEMODE_NUMBER = -1;
     const string SCORE_SAVED_MESSAGE     = "The new highscore has been added and saved.";
     const string NEW_SCORE_MESSAGE       = "Congratulations, you have a new highscore!";
     const string NO_HIGHSCORE_MESSAGE    = "You have not achieved a new highscore.";
@@ -50,18 +42,18 @@ public class Highscores : UnityEngine.MonoBehaviour {
     {
         // Find Text Components from the interface
         FindTextComponents();
-        gameModeNumber = UnityEngine.PlayerPrefs.GetInt("GameModeNumber", (int)GameModes.InvalidGameMode);
+        gameModeNumber = UnityEngine.PlayerPrefs.GetInt("GameModeNumber", INVALID_GAMEMODE_NUMBER);
 
-        if (gameModeNumber == (int)GameModes.InvalidGameMode)
+        EnterScoreInterface(false); // Hide the enter score interface
+        if (gameModeNumber == INVALID_GAMEMODE_NUMBER)
         {
             UnityEngine.Debug.Log("Invalid game mode number.");
-            status.text = ERROR_LOADING_SCORES;
+            status.text = ERROR_LOADING_SCORES;         
         }
         else
         {
             // Get score from the gamemode that was just played FinalScore1, FinalScore2, FinalScore3, FinalScore4
             achievedScore = UnityEngine.PlayerPrefs.GetInt("FinalScore" + gameModeNumber, 0);
-            EnterScoreInterface(false);
 
             status.text = NO_HIGHSCORE_MESSAGE;
             score.text = achievedScore.ToString();
@@ -77,7 +69,7 @@ public class Highscores : UnityEngine.MonoBehaviour {
             if (achievedScore > entry[entry.Length - 1].points)
             {
                 status.text = NEW_SCORE_MESSAGE; // Set status text to new score to enter message
-                EnterScoreInterface(true);       // Show the message
+                EnterScoreInterface(true);       // Show the enter score interface
             }
         }
     }
@@ -116,7 +108,6 @@ public class Highscores : UnityEngine.MonoBehaviour {
     }
 
     // Read names and scores from playerprefs
-
     private void LoadScores()
     {
         for (int i = 0; i < entry.Length; i++)
@@ -136,9 +127,9 @@ public class Highscores : UnityEngine.MonoBehaviour {
     // Check to see if the scores list is already sorted
     private bool Sorted(Players[] entry)
     {
-        for (int i = entry.Length - 2; i >= 0; i--)
+        for (int i = entry.Length-1; i > 0; i--)
         {
-            if (entry[i].points < entry[i + 1].points)
+            if (entry[i-1].points < entry[i].points)
             {
                 return false; // Is not sorted
             }
@@ -175,6 +166,7 @@ public class Highscores : UnityEngine.MonoBehaviour {
     {
         try
         {
+            UnityEngine.PlayerPrefs.SetInt("GameModeNumber", INVALID_GAMEMODE_NUMBER);
             UnityEngine.SceneManagement.SceneManager.LoadScene("Home");
         }
         catch (System.Exception e)
